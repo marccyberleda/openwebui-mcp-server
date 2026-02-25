@@ -123,7 +123,13 @@ export default [
       if (Object.keys(updates).length === 0) {
         return 'No updates provided. Pass name and/or description to update.';
       }
-      const kb = await client.updateKnowledge(id, updates);
+      // API requires name in every update payload — read current state first
+      const current = await client.getKnowledge(id);
+      const payload = {
+        name: updates.name ?? current.name,
+        description: updates.description ?? current.description,
+      };
+      const kb = await client.updateKnowledge(id, payload);
       return `Knowledge base updated.\nID: ${kb.id}\nName: ${kb.name}\nDescription: ${kb.description || '(none)'}`;
     },
   },

@@ -83,11 +83,14 @@ export default class OpenWebUIClient {
             log('  Server error, retrying...');
             continue;
           }
-          const msg =
-            (typeof data === 'object' && data !== null
+          const detail =
+            typeof data === 'object' && data !== null
               ? data.detail ?? data.message ?? data.error
-              : null) ?? response.statusText;
-          throw new APIError(response.status, path, String(msg));
+              : null;
+          const msg = Array.isArray(detail)
+            ? detail.map(e => `${e.msg} (${e.loc?.join('.')})`).join('; ')
+            : typeof detail === 'string' ? detail : null;
+          throw new APIError(response.status, path, msg ?? response.statusText);
         }
 
         return data;
@@ -137,7 +140,7 @@ export default class OpenWebUIClient {
 
   /** List all knowledge base collections. */
   listKnowledge() {
-    return this.request('GET', '/api/v1/knowledge/');
+    return this.request('GET', '/api/v1/knowledge/').then(r => r?.items ?? r ?? []);
   }
 
   /** Get a knowledge base by ID including its file list. */
@@ -263,7 +266,7 @@ export default class OpenWebUIClient {
 
   /**
    * Create a new saved prompt.
-   * @param {{ command: string, title: string, content: string }} data
+   * @param {{ command: string, name: string, content: string }} data
    *   command must start with "/" e.g. "/summarize"
    */
   createPrompt(data) {
@@ -281,7 +284,7 @@ export default class OpenWebUIClient {
   /**
    * Update a prompt.
    * @param {string} command  e.g. "/summarize"
-   * @param {{ title?: string, content?: string }} data
+   * @param {{ name?: string, content?: string }} data
    */
   updatePrompt(command, data) {
     return this.request(
@@ -306,9 +309,24 @@ export default class OpenWebUIClient {
   // System
   // ──────────────────────────────────────────────────────────────
 
-  /** GET /api/health — liveness check. */
-  getHealth() {
-    return this.request('GET', '/api/health');
+  /** GET /api/health — liveness check. Handles HTML responses from Cloudflare-proxied deployments. */
+  async getHealth() {
+    const url = `${this.baseUrl}/api/health`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${this.apiKey}` },
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!response.ok) return { status: 'error' };
+      const text = await response.text();
+      try { return JSON.parse(text); } catch { return { status: 'ok' }; }
+    } catch {
+      clearTimeout(timeoutId);
+      return { status: 'unreachable' };
+    }
   }
 
   /** GET /api/version — app version string. */

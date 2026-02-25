@@ -25,7 +25,7 @@ export default [
       }
       const lines = prompts.map((p) => {
         const preview = (p.content ?? '').slice(0, 80);
-        return `• ${p.command} — ${p.title ?? '(no title)'}\n  "${preview}${preview.length < (p.content ?? '').length ? '…' : ''}"`;
+        return `• ${p.command} — ${p.name ?? '(no name)'}\n  "${preview}${preview.length < (p.content ?? '').length ? '…' : ''}"`;
       });
       return `Found ${prompts.length} prompt(s):\n\n${lines.join('\n\n')}`;
     },
@@ -43,9 +43,9 @@ export default [
           description:
             'Trigger command (must start with "/", e.g. "/summarize", "/translate")',
         },
-        title: {
+        name: {
           type: 'string',
-          description: 'Human-readable title shown in autocomplete suggestions',
+          description: 'Human-readable name shown in autocomplete suggestions',
         },
         content: {
           type: 'string',
@@ -53,18 +53,18 @@ export default [
             'The prompt text. Use {{input}} as a placeholder for user-provided text.',
         },
       },
-      required: ['command', 'title', 'content'],
+      required: ['command', 'name', 'content'],
     },
     handler: async (client, args) => {
       const command = normalizeCommand(String(requireParam(args, 'command')));
-      const title = String(requireParam(args, 'title'));
+      const name = String(requireParam(args, 'name'));
       const content = String(requireParam(args, 'content'));
 
-      const prompt = await client.createPrompt({ command, title, content });
+      const prompt = await client.createPrompt({ command, name, content });
       return [
         `Prompt created successfully.`,
         `Command: ${prompt.command}`,
-        `Title: ${prompt.title}`,
+        `Name: ${prompt.name}`,
         '',
         `Type "${prompt.command}" in any Open WebUI chat to use this prompt.`,
       ].join('\n');
@@ -74,7 +74,7 @@ export default [
   {
     name: 'openwebui_update_prompt',
     description:
-      'Update an existing saved prompt\'s title or content. The command (trigger) cannot be changed — delete and recreate instead.',
+      'Update an existing saved prompt\'s name or content. The command (trigger) cannot be changed — delete and recreate instead.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -82,9 +82,9 @@ export default [
           type: 'string',
           description: 'The prompt\'s command (e.g. "/summarize")',
         },
-        title: {
+        name: {
           type: 'string',
-          description: 'New title (optional)',
+          description: 'New name (optional)',
         },
         content: {
           type: 'string',
@@ -96,8 +96,8 @@ export default [
     handler: async (client, args) => {
       const command = normalizeCommand(String(requireParam(args, 'command')));
 
-      if (!args?.title && !args?.content) {
-        return 'No updates provided. Pass title and/or content to update.';
+      if (!args?.name && !args?.content) {
+        return 'No updates provided. Pass name and/or content to update.';
       }
 
       // Read current state to preserve fields not being updated
@@ -105,7 +105,7 @@ export default [
       if (!current) throw new Error(`Prompt "${command}" not found.`);
 
       const updates = {
-        title: args?.title ? String(args.title) : current.title,
+        name: args?.name ? String(args.name) : current.name,
         content: args?.content ? String(args.content) : current.content,
       };
 
