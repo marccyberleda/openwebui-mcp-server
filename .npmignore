@@ -1,0 +1,7 @@
+docs/response-samples/
+.env
+.env.local
+.env.example
+openwebui-openapi.json
+.github/
+*.test.js

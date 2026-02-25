@@ -1,0 +1,43 @@
+{
+  "name": "openwebui-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Claude Code and Claude Desktop to interact with Open WebUI — manage chats, RAG knowledge bases, functions, and more.",
+  "main": "src/index.js",
+  "bin": {
+    "openwebui-mcp-server": "./src/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test src/**/*.test.js",
+    "lint": "npx eslint src/",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "open-webui",
+    "openwebui",
+    "claude",
+    "claude-code",
+    "claude-desktop",
+    "ai",
+    "llm",
+    "rag",
+    "knowledge-base",
+    "self-hosted"
+  ],
+  "author": "Marc <marc@cyberleda.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marccyberleda/openwebui-mcp-server.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

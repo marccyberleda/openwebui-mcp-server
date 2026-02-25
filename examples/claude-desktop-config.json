@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "openwebui": {
+      "command": "npx",
+      "args": ["-y", "openwebui-mcp-server"],
+      "env": {
+        "OPENWEBUI_URL": "http://localhost:3000",
+        "OPENWEBUI_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
