@@ -4,7 +4,7 @@
   "description": "MCP server for Claude Code and Claude Desktop to interact with Open WebUI — manage chats, RAG knowledge bases, functions, and more.",
   "main": "src/index.js",
   "bin": {
-    "openwebui-mcp-server": "./src/index.js"
+    "openwebui-mcp-server": "src/index.js"
   },
   "type": "module",
   "scripts": {
@@ -32,7 +32,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/marccyberleda/openwebui-mcp-server.git"
+    "url": "git+https://github.com/marccyberleda/openwebui-mcp-server.git"
   },
   "engines": {
     "node": ">=18.0.0"
