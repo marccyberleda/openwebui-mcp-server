@@ -167,6 +167,11 @@ export default class OpenWebUIClient {
     return this.request('DELETE', `/api/v1/knowledge/${id}/delete`);
   }
 
+  /** List files in a knowledge base. Returns array of file objects. */
+  getKnowledgeFiles(id) {
+    return this.request('GET', `/api/v1/knowledge/${id}/files`).then(r => r?.items ?? []);
+  }
+
   /** Add an uploaded file to a knowledge base for RAG. */
   addFileToKnowledge(knowledgeId, fileId) {
     return this.request('POST', `/api/v1/knowledge/${knowledgeId}/file/add`, {

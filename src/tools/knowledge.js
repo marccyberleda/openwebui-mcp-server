@@ -42,10 +42,13 @@ export default [
       const kb = await client.getKnowledge(id);
       if (!kb) return `Knowledge base ${id} not found.`;
 
-      const files = kb.files ?? kb.data?.file_ids ?? [];
+      // The detail endpoint returns files: null — fetch from sub-endpoint instead
+      const files = Array.isArray(kb.files) && kb.files.length > 0
+        ? kb.files
+        : await client.getKnowledgeFiles(id);
       const fileLines =
         Array.isArray(files) && files.length > 0
-          ? files.map((f) => `  • ${f.meta?.name ?? f.id ?? f}`)
+          ? files.map((f) => `  • ${f.filename ?? f.meta?.name ?? f.id ?? f}`)
           : ['  (no files)'];
 
       return [
